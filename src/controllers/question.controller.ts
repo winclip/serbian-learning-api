@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import mongoose from "mongoose";
 import { StatusCodes } from "http-status-codes";
 import Question from "../models/Question";
@@ -6,7 +6,8 @@ import { IQuestion } from "../types/models";
 
 export const getQuestions = async (
   req: Request,
-  res: Response
+  res: Response,
+  next: NextFunction
 ): Promise<void> => {
   try {
     const { topic, sort = "asc" } = req.query;
@@ -18,16 +19,14 @@ export const getQuestions = async (
 
     res.status(StatusCodes.OK).json(questions);
   } catch (error) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      message: "Failed to fetch questions",
-      error: error instanceof Error ? error.message : error,
-    });
+    next(error);
   }
 };
 
 export const createQuestion = async (
   req: Request,
-  res: Response
+  res: Response,
+  next: NextFunction
 ): Promise<void> => {
   try {
     const { topic, questionText, options, answerIndex } = req.body as IQuestion;
@@ -61,16 +60,14 @@ export const createQuestion = async (
 
     res.status(StatusCodes.CREATED).json(newQuestion);
   } catch (error) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      message: "Failed to create question",
-      error: error instanceof Error ? error.message : error,
-    });
+    next(error);
   }
 };
 
 export const updateQuestion = async (
   req: Request,
-  res: Response
+  res: Response,
+  next: NextFunction
 ): Promise<void> => {
   try {
     const { id } = req.params;
@@ -101,16 +98,14 @@ export const updateQuestion = async (
 
     res.status(StatusCodes.OK).json(updated);
   } catch (error) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      message: "Failed to update question",
-      error: error instanceof Error ? error.message : error,
-    });
+    next(error);
   }
 };
 
 export const deleteQuestion = async (
   req: Request,
-  res: Response
+  res: Response,
+  next: NextFunction
 ): Promise<void> => {
   try {
     const { id } = req.params;
@@ -126,16 +121,14 @@ export const deleteQuestion = async (
       deletedQuestion: deleted,
     });
   } catch (error) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      message: "Failed to delete question",
-      error: error instanceof Error ? error.message : error,
-    });
+    next(error);
   }
 };
 
 export const getRandomQuestions = async (
   req: Request,
-  res: Response
+  res: Response,
+  next: NextFunction
 ): Promise<void> => {
   try {
     const { topic, limit = "10" } = req.query;
@@ -169,9 +162,6 @@ export const getRandomQuestions = async (
 
     res.status(StatusCodes.OK).json(questions);
   } catch (error) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      message: "Failed to fetch random questions",
-      error: error instanceof Error ? error.message : error,
-    });
+    next(error);
   }
 };

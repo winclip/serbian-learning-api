@@ -1,23 +1,25 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import { StatusCodes } from "http-status-codes";
 import Topic from "../models/Topic";
 import { ITopic } from "../types/models";
 
-export const getTopics = async (req: Request, res: Response): Promise<void> => {
+export const getTopics = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   try {
     const topics = await Topic.find();
     res.status(StatusCodes.OK).json(topics);
   } catch (error) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      message: "Failed to fetch topics",
-      error: error instanceof Error ? error.message : error,
-    });
+    next(error);
   }
 };
 
 export const createTopic = async (
   req: Request,
-  res: Response
+  res: Response,
+  next: NextFunction
 ): Promise<void> => {
   try {
     const { nameSr, nameEn }: ITopic = req.body;
@@ -32,16 +34,14 @@ export const createTopic = async (
     const newTopic = await Topic.create({ nameSr, nameEn });
     res.status(StatusCodes.CREATED).json(newTopic);
   } catch (error) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      message: "Failed to create topic",
-      error: error instanceof Error ? error.message : error,
-    });
+    next(error);
   }
 };
 
 export const updateTopic = async (
   req: Request,
-  res: Response
+  res: Response,
+  next: NextFunction
 ): Promise<void> => {
   try {
     const { id } = req.params;
@@ -60,16 +60,14 @@ export const updateTopic = async (
 
     res.status(StatusCodes.OK).json(updated);
   } catch (error) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      message: "Failed to update topic",
-      error: error instanceof Error ? error.message : error,
-    });
+    next(error);
   }
 };
 
 export const deleteTopic = async (
   req: Request,
-  res: Response
+  res: Response,
+  next: NextFunction
 ): Promise<void> => {
   try {
     const { id } = req.params;
@@ -85,9 +83,6 @@ export const deleteTopic = async (
       deletedTopic: deleted,
     });
   } catch (error) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      message: "Failed to delete topic",
-      error: error instanceof Error ? error.message : error,
-    });
+    next(error);
   }
 };

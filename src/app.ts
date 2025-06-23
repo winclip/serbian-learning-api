@@ -3,6 +3,8 @@ import cors from "cors";
 import apiRoutes from "./routes";
 import dotenv from "dotenv";
 import { connectDB } from "./config/database";
+import notFound from "./middleware/notFound";
+import errorHandler from "./middleware/errorHandler";
 
 dotenv.config();
 
@@ -14,8 +16,8 @@ app.use("/api", apiRoutes);
 
 connectDB(process.env.MONGO_URI!);
 
-app.get("/", (_req, res) => {
-  res.send("Backend is running ");
-});
+app.use(notFound);
+
+app.use(errorHandler);
 
 export default app;

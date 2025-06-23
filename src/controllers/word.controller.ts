@@ -1,25 +1,27 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import Word from "../models/Word";
 import { StatusCodes } from "http-status-codes";
 import { IWord } from "../types/models";
 
-export const getWords = async (req: Request, res: Response): Promise<void> => {
+export const getWords = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   try {
     const { topic } = req.query;
     const filter = topic ? { topic } : {};
     const words = await Word.find(filter).populate("topic");
     res.status(StatusCodes.OK).json(words);
   } catch (error) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      message: "Failed to fetch words",
-      error: error instanceof Error ? error.message : error,
-    });
+    next(error);
   }
 };
 
 export const createWord = async (
   req: Request,
-  res: Response
+  res: Response,
+  next: NextFunction
 ): Promise<void> => {
   try {
     const { topic, wordSr, wordEn }: IWord = req.body;
@@ -34,16 +36,14 @@ export const createWord = async (
     const newWord = await Word.create({ topic, wordSr, wordEn });
     res.status(StatusCodes.CREATED).json(newWord);
   } catch (error) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      message: "Failed to create word",
-      error: error instanceof Error ? error.message : error,
-    });
+    next(error);
   }
 };
 
 export const updateWord = async (
   req: Request,
-  res: Response
+  res: Response,
+  next: NextFunction
 ): Promise<void> => {
   try {
     const { id } = req.params;
@@ -62,16 +62,14 @@ export const updateWord = async (
 
     res.status(StatusCodes.OK).json(updated);
   } catch (error) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      message: "Failed to update word",
-      error: error instanceof Error ? error.message : error,
-    });
+    next(error);
   }
 };
 
 export const deleteWord = async (
   req: Request,
-  res: Response
+  res: Response,
+  next: NextFunction
 ): Promise<void> => {
   try {
     const { id } = req.params;
@@ -84,9 +82,6 @@ export const deleteWord = async (
 
     res.status(StatusCodes.OK).json({ message: "Word deleted successfully" });
   } catch (error) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      message: "Failed to delete word",
-      error: error instanceof Error ? error.message : error,
-    });
+    next(error);
   }
 };

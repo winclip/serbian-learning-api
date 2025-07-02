@@ -11,7 +11,12 @@ export const getQuestions = async (
 ): Promise<void> => {
   try {
     const { topic, sort = "asc" } = req.query;
-    const filter = topic ? { topic } : {};
+
+    let filter = {};
+    if (typeof topic === "string") {
+      const topicArray = topic.split(",");
+      filter = { topic: { $in: topicArray } };
+    }
 
     const questions = await Question.find(filter)
       .populate("topic")

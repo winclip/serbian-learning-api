@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import { StatusCodes } from "http-status-codes";
 import Question from "../models/Question";
 import { IQuestion } from "../types/models";
+import { shuffleArray } from "../utils/shuffleArray";
 
 export const getQuestions = async (
   req: Request,
@@ -10,7 +11,7 @@ export const getQuestions = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const { topic, sort = "asc" } = req.query;
+    const { topic } = req.query;
 
     let filter = {};
     if (typeof topic === "string") {
@@ -18,11 +19,11 @@ export const getQuestions = async (
       filter = { topic: { $in: topicArray } };
     }
 
-    const questions = await Question.find(filter)
-      .populate("topic")
-      .sort({ questionText: sort === "desc" ? -1 : 1 });
+    const questions = await Question.find(filter).populate("topic");
 
-    res.status(StatusCodes.OK).json(questions);
+    const shuffledQuestions = shuffleArray(questions);
+
+    res.status(StatusCodes.OK).json(shuffledQuestions);
   } catch (error) {
     next(error);
   }

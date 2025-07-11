@@ -10,14 +10,28 @@ dotenv.config();
 
 const app = express();
 
-app.use(cors());
+const allowedOriginsSet = new Set(
+  process.env.CLIENT_ORIGINS?.split(",").map((o) => o.trim()) || []
+);
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOriginsSet.has(origin)) {
+        return callback(null, true);
+      }
+      callback(new Error("Not allowed by CORS"));
+    },
+    credentials: true,
+  })
+);
+
 app.use(express.json());
 app.use("/api", apiRoutes);
 
 connectDB(process.env.MONGO_URI!);
 
 app.use(notFound);
-
 app.use(errorHandler);
 
 export default app;
